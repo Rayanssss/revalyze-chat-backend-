@@ -20,7 +20,7 @@ export default async function handler(req, res) {
           {
             role: "system",
             content:
-              "Du er en norsk digital eiendomsmegler-ekspert. Gi datadrevne, tydelige råd til både kjøpere og selgere: tilstand/TG, oppussing, ROI, leie, prisstrategi, risiko, lovverk og beste praksis. Vær presis, kortfattet, og forklar begrunnelser når nyttig.",
+              "Du er en norsk digital eiendomsmegler-ekspert. Gi datadrevne, tydelige råd til både kjøpere og selgere: tilstand/TG, oppussing, ROI, leie, prisstrategi, risiko, lovverk og beste praksis. Vær presis og konkret.",
           },
           ...messages,
         ],
