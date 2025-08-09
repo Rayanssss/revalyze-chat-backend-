@@ -1,4 +1,10 @@
 export default async function handler(req, res) {
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*"); // evt. bytt * til din frontend-URL
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(200).end();
+
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   try {
     const { messages } = req.body || {};
@@ -9,34 +15,23 @@ export default async function handler(req, res) {
 
     const r = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: "gpt-5",
         temperature: 0.3,
         messages: [
-          {
-            role: "system",
-            content:
-              "Du er en norsk digital eiendomsmegler-ekspert. Gi datadrevne, tydelige råd til både kjøpere og selgere: tilstand/TG, oppussing, ROI, leie, prisstrategi, risiko, lovverk og beste praksis. Vær presis og konkret.",
+          { role: "system",
+            content: "Du er en norsk digital eiendomsmegler-ekspert. Gi datadrevne, tydelige råd til både kjøpere og selgere: tilstand/TG, oppussing, ROI, leie, prisstrategi, risiko, lovverk og beste praksis. Vær presis og konkret."
           },
-          ...messages,
-        ],
-      }),
+          ...messages
+        ]
+      })
     });
 
-    if (!r.ok) {
-      const txt = await r.text();
-      return res.status(500).json({ error: "OpenAI error", detail: txt });
-    }
-
+    if (!r.ok) return res.status(500).json({ error: "OpenAI error", detail: await r.text() });
     const data = await r.json();
-    const content = data?.choices?.[0]?.message?.content || "Beklager, jeg fant ikke et svar.";
-    return res.status(200).json({ content });
+    return res.status(200).json({ content: data?.choices?.[0]?.message?.content || "Beklager, jeg fant ikke et svar." });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
 }
